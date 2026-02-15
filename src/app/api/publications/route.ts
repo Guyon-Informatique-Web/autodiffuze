@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/auth"
 import { createPublicationSchema } from "@/lib/validations/publication"
 import { getPlanLimits } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
-import type { Prisma, PublicationStatus, PlatformType } from "@prisma/client"
+import type { Prisma, PublicationStatus, PlatformType } from "@/generated/prisma/client"
 
 // Statuts de publication valides pour le filtrage
 const VALID_STATUSES: PublicationStatus[] = [

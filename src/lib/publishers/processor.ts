@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { decryptToken, encryptToken } from "@/lib/crypto"
 import { publishers } from "./index"
 import { notifyPublishFailed } from "@/lib/email/notify"
-import type { PlatformType } from "@prisma/client"
+import type { PlatformType } from "@/generated/prisma/client"
 
 // Delais de backoff exponentiel pour les retries (en secondes)
 // Retry 1 : 30s, Retry 2 : 2min, Retry 3 : 10min

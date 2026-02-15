@@ -1,5 +1,5 @@
 // Registre des services de publication par plateforme
-import type { PlatformType } from "@prisma/client"
+import type { PlatformType } from "@/generated/prisma/client"
 import type { PublishPayload, PublishResult } from "./types"
 import { publishToFacebook } from "./facebook"
 import { publishToInstagram } from "./instagram"

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,6 +15,7 @@ model User {
   stripeCustomerId      String?   @unique @map("stripe_customer_id")
   stripeSubscriptionId  String?   @unique @map("stripe_subscription_id")
   plan                  Plan      @default(FREE)
+  isAdmin               Boolean   @default(false) @map("is_admin")
   notifyEmail           Boolean   @default(true) @map("notify_email")
   notifyDiscord         Boolean   @default(false) @map("notify_discord")
   discordWebhookUrl     String?   @map("discord_webhook_url")

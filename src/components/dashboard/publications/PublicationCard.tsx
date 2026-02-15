@@ -28,7 +28,7 @@ import {
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { PLATFORM_CONFIG, type PlatformKey } from "@/config/platforms"
-import type { PublicationStatus, PlatformPublishStatus, PlatformType } from "@prisma/client"
+import type { PublicationStatus, PlatformPublishStatus, PlatformType } from "@/generated/prisma/client"
 
 // Type pour une publication telle que retournee par l'API GET /api/publications
 export interface PublicationData {

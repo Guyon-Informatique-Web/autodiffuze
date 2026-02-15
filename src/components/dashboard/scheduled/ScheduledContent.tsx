@@ -9,7 +9,7 @@ import { CalendarClock, CalendarDays, List, PenSquare } from "lucide-react"
 import Link from "next/link"
 import { CalendarView } from "@/components/dashboard/scheduled/CalendarView"
 import { ListView } from "@/components/dashboard/scheduled/ListView"
-import type { PlatformType } from "@prisma/client"
+import type { PlatformType } from "@/generated/prisma/client"
 
 // Type serialise pour les publications passees depuis le Server Component
 export interface SerializedPublication {

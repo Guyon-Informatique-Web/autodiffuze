@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 
-import type { PublicationStatus, PlatformType } from "@prisma/client"
+import type { PublicationStatus, PlatformType } from "@/generated/prisma/client"
 
 export const metadata = {
   title: "Dashboard",

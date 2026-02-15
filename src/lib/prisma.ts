@@ -1,5 +1,6 @@
-// Client Prisma singleton -- initialisation lazy pour eviter les erreurs en build
-import { PrismaClient } from "@prisma/client"
+// Client Prisma singleton -- initialisation lazy avec adapter pg pour Prisma 7
+import { PrismaClient } from "@/generated/prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -7,7 +8,10 @@ const globalForPrisma = globalThis as unknown as {
 
 function getPrismaClient(): PrismaClient {
   if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = new PrismaClient()
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL!,
+    })
+    globalForPrisma.prisma = new PrismaClient({ adapter })
   }
   return globalForPrisma.prisma
 }

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { decryptToken, encryptToken } from "@/lib/crypto"
-import type { PlatformType } from "@prisma/client"
+import type { PlatformType } from "@/generated/prisma/client"
 
 // Types pour les reponses de rafraichissement des differentes plateformes
 interface MetaRefreshResponse {

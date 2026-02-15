@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  name                  String?
+  avatarUrl             String?   @map("avatar_url")
+  stripeCustomerId      String?   @unique @map("stripe_customer_id")
+  stripeSubscriptionId  String?   @unique @map("stripe_subscription_id")
+  plan                  Plan      @default(FREE)
+  notifyEmail           Boolean   @default(true) @map("notify_email")
+  notifyDiscord         Boolean   @default(false) @map("notify_discord")
+  discordWebhookUrl     String?   @map("discord_webhook_url")
+  aiCreditsUsed         Int       @default(0) @map("ai_credits_used")
+  aiCreditsResetAt      DateTime? @map("ai_credits_reset_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  clients               Client[]
+  publications          Publication[]
+  templates             Template[]
+  platformConnections   PlatformConnection[]
+  @@map("users")
+}
+
+enum Plan {
+  FREE
+  PRO
+  AGENCY
+}
+
+model Client {
+  id              String    @id @default(cuid())
+  userId          String    @map("user_id")
+  name            String
+  description     String?
+  logoUrl         String?   @map("logo_url")
+  website         String?
+  industry        String?
+  tone            String?
+  targetAudience  String?   @map("target_audience")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  publications    Publication[]
+  platformConnections PlatformConnection[]
+  @@map("clients")
+}
+
+model PlatformConnection {
+  id              String    @id @default(cuid())
+  userId          String    @map("user_id")
+  clientId        String    @map("client_id")
+  platform        PlatformType
+  platformAccountId   String    @map("platform_account_id")
+  platformAccountName String    @map("platform_account_name")
+  platformPageId      String?   @map("platform_page_id")
+  accessToken     String    @map("access_token")
+  refreshToken    String?   @map("refresh_token")
+  tokenExpiresAt  DateTime? @map("token_expires_at")
+  isActive        Boolean   @default(true) @map("is_active")
+  lastUsedAt      DateTime? @map("last_used_at")
+  errorMessage    String?   @map("error_message")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client          Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  platformPublications PlatformPublication[]
+  @@unique([clientId, platform, platformAccountId])
+  @@map("platform_connections")
+}
+
+enum PlatformType {
+  FACEBOOK
+  INSTAGRAM
+  LINKEDIN
+  X
+  TIKTOK
+}
+
+model Publication {
+  id              String    @id @default(cuid())
+  userId          String    @map("user_id")
+  clientId        String    @map("client_id")
+  title           String?
+  baseContent     String    @map("base_content")
+  contentType     ContentType @default(POST) @map("content_type")
+  mediaUrls       String[]  @map("media_urls")
+  mediaTypes      String[]  @map("media_types")
+  status          PublicationStatus @default(DRAFT)
+  scheduledAt     DateTime? @map("scheduled_at")
+  publishedAt     DateTime? @map("published_at")
+  aiGenerated     Boolean   @default(false) @map("ai_generated")
+  aiPrompt        String?   @map("ai_prompt")
+  templateId      String?   @map("template_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client          Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  template        Template? @relation(fields: [templateId], references: [id])
+  platformPublications PlatformPublication[]
+  @@index([userId, status])
+  @@index([scheduledAt])
+  @@map("publications")
+}
+
+enum ContentType {
+  POST
+  STORY
+  REEL
+  ARTICLE
+  THREAD
+}
+
+enum PublicationStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  PARTIAL
+  FAILED
+}
+
+model PlatformPublication {
+  id                    String    @id @default(cuid())
+  publicationId         String    @map("publication_id")
+  platformConnectionId  String    @map("platform_connection_id")
+  adaptedContent        String    @map("adapted_content")
+  hashtags              String[]
+  mediaUrls             String[]  @map("media_urls")
+  status                PlatformPublishStatus @default(PENDING)
+  platformPostId        String?   @map("platform_post_id")
+  platformPostUrl       String?   @map("platform_post_url")
+  errorMessage          String?   @map("error_message")
+  publishedAt           DateTime? @map("published_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  publication           Publication       @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  platformConnection    PlatformConnection @relation(fields: [platformConnectionId], references: [id], onDelete: Cascade)
+  @@unique([publicationId, platformConnectionId])
+  @@map("platform_publications")
+}
+
+enum PlatformPublishStatus {
+  PENDING
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  SKIPPED
+}
+
+model Template {
+  id              String    @id @default(cuid())
+  userId          String    @map("user_id")
+  name            String
+  description     String?
+  baseContent     String    @map("base_content")
+  contentType     ContentType @default(POST) @map("content_type")
+  platforms       PlatformType[]
+  hashtags        String[]
+  category        String?
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  publications    Publication[]
+  @@map("templates")
+}
+
+model PublishJob {
+  id                    String    @id @default(cuid())
+  publicationId         String    @map("publication_id")
+  platformPublicationId String    @map("platform_publication_id")
+  status                JobStatus @default(PENDING)
+  attempts              Int       @default(0)
+  maxAttempts           Int       @default(3) @map("max_attempts")
+  lastError             String?   @map("last_error")
+  nextRetryAt           DateTime? @map("next_retry_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  processedAt           DateTime? @map("processed_at")
+  @@index([status, nextRetryAt])
+  @@map("publish_jobs")
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}

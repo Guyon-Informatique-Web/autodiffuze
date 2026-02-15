@@ -14,6 +14,7 @@ import {
   LayoutTemplate,
   Settings,
   CreditCard,
+  Shield,
 } from "lucide-react"
 
 const navItems = [
@@ -67,7 +68,7 @@ const bottomItems = [
   },
 ]
 
-export function Sidebar() {
+export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
 
   return (
@@ -107,6 +108,33 @@ export function Sidebar() {
             )
           })}
         </nav>
+
+        {/* Section admin */}
+        {isAdmin && (
+          <div className="border-t p-3">
+            {[
+              { label: "Administration", href: "/dashboard/admin", icon: Shield },
+            ].map((item) => {
+              const isActive = pathname.startsWith(item.href)
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+                      : "text-red-600/70 hover:bg-red-50 hover:text-red-700 dark:text-red-400/70 dark:hover:bg-red-950/50 dark:hover:text-red-300"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              )
+            })}
+          </div>
+        )}
 
         {/* Navigation en bas */}
         <div className="border-t p-3">

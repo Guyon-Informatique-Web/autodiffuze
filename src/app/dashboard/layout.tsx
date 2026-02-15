@@ -5,16 +5,19 @@ export const dynamic = "force-dynamic"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader"
 import { MobileNav } from "@/components/dashboard/MobileNav"
+import { getCurrentUser } from "@/lib/auth"
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const user = await getCurrentUser()
+
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar desktop */}
-      <Sidebar />
+      <Sidebar isAdmin={user?.isAdmin ?? false} />
 
       {/* Contenu principal */}
       <div className="flex flex-1 flex-col md:ml-64">

@@ -47,3 +47,6 @@ prisma/migrations/
 
 # Uploads
 uploads/
+
+# Netlify Drop export
+/netlify-drop/

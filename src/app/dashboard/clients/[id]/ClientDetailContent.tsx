@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ClientForm } from "@/components/dashboard/clients/ClientForm"
 import { DeleteClientDialog } from "@/components/dashboard/clients/DeleteClientDialog"
+import { ConnectPlatformDialog } from "@/components/dashboard/platforms/ConnectPlatformDialog"
 import {
   ArrowLeft,
   Pencil,
@@ -377,11 +378,11 @@ export function ClientDetailContent({
                 <p className="text-sm text-muted-foreground">
                   Aucune plateforme connectee pour le moment.
                 </p>
-                <Button variant="link" asChild className="mt-2">
-                  <Link href={`/dashboard/clients/${client.id}`}>
+                <ConnectPlatformDialog clientId={client.id}>
+                  <Button variant="link" className="mt-2">
                     Connecter une plateforme
-                  </Link>
-                </Button>
+                  </Button>
+                </ConnectPlatformDialog>
               </div>
             ) : (
               <div className="space-y-3">
@@ -414,12 +415,12 @@ export function ClientDetailContent({
                   </div>
                 ))}
                 <Separator className="my-2" />
-                <Button variant="outline" size="sm" asChild className="w-full">
-                  <Link href={`/dashboard/clients/${client.id}`}>
+                <ConnectPlatformDialog clientId={client.id}>
+                  <Button variant="outline" size="sm" className="w-full">
                     <Link2 className="mr-2 h-4 w-4" />
                     Connecter une plateforme
-                  </Link>
-                </Button>
+                  </Button>
+                </ConnectPlatformDialog>
               </div>
             )}
           </CardContent>

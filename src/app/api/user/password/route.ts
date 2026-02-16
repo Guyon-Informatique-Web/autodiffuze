@@ -29,8 +29,20 @@ export async function POST(request: Request) {
     })
 
     if (error) {
+      // Traduction des messages d'erreur Supabase en francais
+      const supabaseErrors: Record<string, string> = {
+        "New password should be different from the old password.":
+          "Le nouveau mot de passe doit etre different de l'ancien.",
+        "Password should be at least 6 characters.":
+          "Le mot de passe doit contenir au moins 6 caracteres.",
+        "Auth session missing!":
+          "Session d'authentification manquante.",
+      }
+
+      const message = supabaseErrors[error.message] ?? "Erreur lors du changement de mot de passe"
+
       return NextResponse.json(
-        { error: error.message },
+        { error: message },
         { status: 400 }
       )
     }

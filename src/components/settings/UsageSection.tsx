@@ -15,14 +15,17 @@ import { Users, FileText, Sparkles, Link2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { PlanType } from "@/config/plans"
 
+// Structure retournee par l'API /api/usage (correspond a PlanUsage)
 interface UsageData {
   usage: {
-    clients: number
-    publications: number
-    aiCredits: number
-    platforms: number
+    clients: { current: number; max: number }
+    publications: { current: number; max: number }
+    aiCredits: { used: number; max: number; resetsAt: string | null }
+    platforms: { current: number; max: number }
+    scheduling: boolean
+    templates: boolean
   }
-  plan: PlanType
+  plan: { type: PlanType; name: string }
   limits: {
     maxClients: number
     maxPublicationsPerMonth: number
@@ -111,26 +114,26 @@ export function UsageSection() {
           <div className="space-y-6">
             <UsageBar
               label="Clients"
-              used={data.usage.clients}
-              limit={data.limits.maxClients}
+              used={data.usage.clients.current}
+              limit={data.usage.clients.max}
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
             />
             <UsageBar
               label="Publications ce mois"
-              used={data.usage.publications}
-              limit={data.limits.maxPublicationsPerMonth}
+              used={data.usage.publications.current}
+              limit={data.usage.publications.max}
               icon={<FileText className="h-4 w-4 text-muted-foreground" />}
             />
             <UsageBar
               label="Credits IA"
-              used={data.usage.aiCredits}
-              limit={data.limits.aiGenerationsPerMonth}
+              used={data.usage.aiCredits.used}
+              limit={data.usage.aiCredits.max}
               icon={<Sparkles className="h-4 w-4 text-muted-foreground" />}
             />
             <UsageBar
               label="Plateformes connectees"
-              used={data.usage.platforms}
-              limit={data.limits.maxPlatforms}
+              used={data.usage.platforms.current}
+              limit={data.usage.platforms.max}
               icon={<Link2 className="h-4 w-4 text-muted-foreground" />}
             />
           </div>

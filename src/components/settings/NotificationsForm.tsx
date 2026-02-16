@@ -36,6 +36,17 @@ export function NotificationsForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Validation : webhook obligatoire si Discord est active
+    if (notifyDiscord && !discordWebhookUrl.trim()) {
+      toast.error("Veuillez renseigner l'URL du webhook Discord")
+      return
+    }
+
+    if (notifyDiscord && !discordWebhookUrl.startsWith("https://discord.com/api/webhooks/")) {
+      toast.error("L'URL du webhook doit commencer par https://discord.com/api/webhooks/")
+      return
+    }
+
     setIsSaving(true)
 
     try {

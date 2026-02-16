@@ -1,10 +1,8 @@
 // Configuration Prisma pour Supabase (connexion poolee + directe)
-import { config } from "dotenv";
-import { defineConfig } from "prisma/config";
+// Les URLs viennent du fichier commun SaaS/.env.local
 
-// Charger .env.local en priorite, puis .env en fallback
-config({ path: ".env.local" });
-config({ path: ".env" });
+import "./load-common-env";
+import { defineConfig } from "prisma/config";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

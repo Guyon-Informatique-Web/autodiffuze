@@ -9,7 +9,7 @@ import {
   PenSquare,
   FileText,
   Users,
-  Menu,
+  BarChart3,
 } from "lucide-react"
 
 const mobileNavItems = [
@@ -35,9 +35,9 @@ const mobileNavItems = [
     icon: Users,
   },
   {
-    label: "Menu",
-    href: "/dashboard/settings",
-    icon: Menu,
+    label: "Analytics",
+    href: "/dashboard/analytics",
+    icon: BarChart3,
   },
 ]
 

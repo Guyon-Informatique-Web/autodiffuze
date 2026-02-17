@@ -12,6 +12,7 @@ import {
   Users,
   Link2,
   LayoutTemplate,
+  BarChart3,
   Settings,
   CreditCard,
   Shield,
@@ -37,6 +38,11 @@ const navItems = [
     label: "Planifiees",
     href: "/dashboard/scheduled",
     icon: CalendarClock,
+  },
+  {
+    label: "Analytics",
+    href: "/dashboard/analytics",
+    icon: BarChart3,
   },
   {
     label: "Clients",

@@ -11,10 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Moon, Sun, Bell, LogOut, Settings, User } from "lucide-react"
+import { Moon, Sun, LogOut, Settings, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { NotificationBell } from "./NotificationBell"
 
 export function DashboardHeader() {
   const { theme, setTheme } = useTheme()
@@ -54,10 +55,7 @@ export function DashboardHeader() {
         </Button>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon">
-          <Bell className="h-4 w-4" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        <NotificationBell />
 
         {/* Menu utilisateur */}
         <DropdownMenu>

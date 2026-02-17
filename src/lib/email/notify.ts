@@ -34,6 +34,19 @@ export async function notifyPublishFailed(
 
     const publicationTitle = publication.title ?? "Sans titre"
 
+    // Notification in-app
+    const platformsList = failedPlatforms.map((p) => p.name).join(", ")
+    await prisma.notification.create({
+      data: {
+        userId,
+        type: "PUBLISH_FAILED",
+        title: `Publication echouee - ${publicationTitle}`,
+        message: `La publication "${publicationTitle}" a echoue sur : ${platformsList}`,
+        metadata: { publicationId, failedPlatforms },
+      },
+    })
+
+    // Notification email
     const html = publishFailedEmail({
       userName: user.name ?? "",
       publicationTitle,
@@ -69,6 +82,18 @@ export async function notifyTokenExpired(
 
     if (!user || !user.notifyEmail) return
 
+    // Notification in-app
+    await prisma.notification.create({
+      data: {
+        userId,
+        type: "TOKEN_EXPIRED",
+        title: `Connexion expiree - ${platformName}`,
+        message: `Le token de connexion ${platformName} pour le client "${clientName}" a expire. Reconnectez-vous pour continuer a publier.`,
+        metadata: { platformName, clientName, clientId },
+      },
+    })
+
+    // Notification email
     const html = tokenExpiredEmail({
       userName: user.name ?? "",
       platformName,
@@ -110,6 +135,19 @@ export async function notifyScheduledReminder(
 
     const count = publications.length
 
+    // Notification in-app
+    const pubTitles = publications.map((p) => p.title).join(", ")
+    await prisma.notification.create({
+      data: {
+        userId,
+        type: "SCHEDULED_REMINDER",
+        title: `${count} publication${count > 1 ? "s" : ""} planifiee${count > 1 ? "s" : ""} demain`,
+        message: `Publications prevues : ${pubTitles}`,
+        metadata: { count, publications: publications.map((p) => p.title) },
+      },
+    })
+
+    // Notification email
     const html = scheduledReminderEmail({
       userName: user.name ?? "",
       publications,

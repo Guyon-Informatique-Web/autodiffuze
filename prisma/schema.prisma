@@ -27,6 +27,7 @@ model User {
   publications          Publication[]
   templates             Template[]
   platformConnections   PlatformConnection[]
+  notifications         Notification[]
   @@map("users")
 }
 
@@ -194,4 +195,25 @@ enum JobStatus {
   COMPLETED
   FAILED
   CANCELLED
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now()) @map("created_at")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, read, createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  PUBLISH_FAILED
+  TOKEN_EXPIRED
+  SCHEDULED_REMINDER
+  PLAN_LIMIT_WARNING
 }

@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { baseContent, platform, clientId } = validation.data
+    const { baseContent, platform, clientId, useEmojis } = validation.data
 
     // Verification que le client appartient a l'utilisateur
     const client = await prisma.client.findFirst({
@@ -85,6 +85,11 @@ export async function POST(request: NextRequest) {
     // Recuperation de la configuration de la plateforme cible
     const platformConfig = PLATFORM_CONFIG[platform as PlatformKey]
 
+    // Instruction conditionnelle pour les emojis
+    const emojiInstruction = useEmojis
+      ? "Utilise des emojis pertinents pour rendre le contenu plus attractif et structurer visuellement le texte."
+      : "N'utilise aucun emoji dans le contenu."
+
     // Construction du prompt systeme avec le contexte de la plateforme
     const systemPrompt = `Tu es un expert en communication digitale.
 Tu adaptes un contenu existant pour une plateforme specifique.
@@ -95,6 +100,7 @@ ${baseContent}
 Plateforme cible : ${platformConfig.name}
 Limites : ${platformConfig.limits.maxChars} caracteres max, ${platformConfig.limits.maxHashtags} hashtags max
 Conseils pour cette plateforme : ${platformConfig.toneGuidance}
+${emojiInstruction}
 
 Adapte le contenu en respectant :
 - Les limites de caracteres de la plateforme

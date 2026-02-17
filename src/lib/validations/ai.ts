@@ -28,6 +28,7 @@ export const adaptContentSchema = z.object({
     message: "Plateforme invalide",
   }),
   clientId: z.string().min(1, "L'identifiant du client est obligatoire"),
+  useEmojis: z.boolean().optional(),
 })
 
 export type GenerateContentInput = z.infer<typeof generateContentSchema>

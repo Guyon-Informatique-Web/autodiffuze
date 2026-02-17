@@ -11,9 +11,11 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
-import { Loader2, Sparkles, X, Plus, User } from "lucide-react"
+import { Loader2, Sparkles, X, Plus, User, Smile } from "lucide-react"
 import { toast } from "sonner"
 import { PLATFORM_CONFIG, type PlatformKey } from "@/config/platforms"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 
 // Donnees d'adaptation pour une plateforme
@@ -35,9 +37,11 @@ interface PlatformPreviewProps {
     field: "adaptedContent" | "hashtags",
     value: string | string[]
   ) => void
-  onAdaptSingle: (platformConnectionId: string) => Promise<void>
+  onAdaptSingle: (platformConnectionId: string, options?: { useEmojis?: boolean }) => Promise<void>
   onAdaptAll: () => Promise<void>
   isAdaptingAll: boolean
+  useEmojis: Record<string, boolean>
+  onUseEmojisChange: (platformConnectionId: string, value: boolean) => void
   disabled?: boolean
 }
 
@@ -62,6 +66,8 @@ export function PlatformPreview({
   onAdaptSingle,
   onAdaptAll,
   isAdaptingAll,
+  useEmojis,
+  onUseEmojisChange,
   disabled = false,
 }: PlatformPreviewProps) {
   // Etat local pour le nouveau hashtag en cours de saisie
@@ -361,12 +367,33 @@ export function PlatformPreview({
 
                   <Separator />
 
+                  {/* Option emojis */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Smile className="h-4 w-4 text-muted-foreground" />
+                      <Label
+                        htmlFor={`emoji-toggle-${adaptation.platformConnectionId}`}
+                        className="text-xs font-medium cursor-pointer"
+                      >
+                        Inclure des emojis
+                      </Label>
+                    </div>
+                    <Switch
+                      id={`emoji-toggle-${adaptation.platformConnectionId}`}
+                      checked={useEmojis[adaptation.platformConnectionId] ?? false}
+                      onCheckedChange={(checked) =>
+                        onUseEmojisChange(adaptation.platformConnectionId, checked)
+                      }
+                      disabled={disabled || adaptation.isAdapting || isAdaptingAll}
+                    />
+                  </div>
+
                   {/* Bouton adapter avec l'IA pour cette plateforme */}
                   <Button
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    onClick={() => onAdaptSingle(adaptation.platformConnectionId)}
+                    onClick={() => onAdaptSingle(adaptation.platformConnectionId, { useEmojis: useEmojis[adaptation.platformConnectionId] ?? false })}
                     disabled={
                       disabled ||
                       adaptation.isAdapting ||

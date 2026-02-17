@@ -177,6 +177,7 @@ export function PublicationEditor({
   // -- Etats d'adaptation --
   const [adaptations, setAdaptations] = useState<PlatformAdaptation[]>([])
   const [isAdaptingAll, setIsAdaptingAll] = useState(false)
+  const [useEmojis, setUseEmojis] = useState<Record<string, boolean>>({})
 
   // -- Etats IA --
   const [aiCreditsRemaining, setAiCreditsRemaining] = useState<number | null>(
@@ -327,6 +328,7 @@ export function PublicationEditor({
     setSelectedClientId(clientId)
     setSelectedPlatformIds(new Set())
     setAdaptations([])
+    setUseEmojis({})
     setPlatformConnections([])
     void loadPlatforms(clientId)
   }
@@ -470,7 +472,7 @@ export function PublicationEditor({
 
   // -- Adaptation IA pour une seule plateforme --
   const handleAdaptSingle = useCallback(
-    async (platformConnectionId: string) => {
+    async (platformConnectionId: string, options?: { useEmojis?: boolean }) => {
       const adaptation = adaptations.find(
         (a) => a.platformConnectionId === platformConnectionId
       )
@@ -493,6 +495,7 @@ export function PublicationEditor({
             baseContent,
             platform: adaptation.platform,
             clientId: selectedClientId,
+            useEmojis: options?.useEmojis ?? false,
           }),
         })
 
@@ -557,6 +560,7 @@ export function PublicationEditor({
             baseContent,
             platform: adaptation.platform,
             clientId: selectedClientId,
+            useEmojis: useEmojis[adaptation.platformConnectionId] ?? false,
           }),
         })
 
@@ -633,7 +637,15 @@ export function PublicationEditor({
     } finally {
       setIsAdaptingAll(false)
     }
-  }, [adaptations, baseContent, selectedClientId])
+  }, [adaptations, baseContent, selectedClientId, useEmojis])
+
+  // -- Modification de l'option emojis pour une plateforme --
+  const handleUseEmojisChange = useCallback(
+    (platformConnectionId: string, value: boolean) => {
+      setUseEmojis((prev) => ({ ...prev, [platformConnectionId]: value }))
+    },
+    []
+  )
 
   // -- Modification d'une adaptation (contenu ou hashtags) --
   const handleAdaptationChange = useCallback(
@@ -1232,6 +1244,8 @@ export function PublicationEditor({
             onAdaptSingle={handleAdaptSingle}
             onAdaptAll={handleAdaptAll}
             isAdaptingAll={isAdaptingAll}
+            useEmojis={useEmojis}
+            onUseEmojisChange={handleUseEmojisChange}
             disabled={isAnyLoading}
           />
         </div>

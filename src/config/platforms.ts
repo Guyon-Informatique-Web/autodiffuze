@@ -75,8 +75,9 @@ export const PLATFORM_CONFIG: Record<PlatformKey, PlatformConfig> = {
     },
     contentTypes: ["POST", "ARTICLE"],
     oauthScopes: [
+      "openid",
+      "profile",
       "w_member_social",
-      "r_liteprofile",
     ],
     toneGuidance: "Ton professionnel mais accessible. Storytelling apprecie. Commencer par une accroche forte. Pas trop d'emojis. Hashtags en fin de post.",
   },

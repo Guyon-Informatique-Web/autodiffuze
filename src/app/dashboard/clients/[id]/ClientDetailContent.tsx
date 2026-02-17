@@ -109,6 +109,15 @@ const PLATFORM_LABELS: Record<string, string> = {
   TIKTOK: "TikTok",
 }
 
+// Icones SVG et couleurs des plateformes
+const PLATFORM_ICONS: Record<string, { icon: string; color: string }> = {
+  FACEBOOK: { icon: "/platforms/facebook.svg", color: "#1877F2" },
+  INSTAGRAM: { icon: "/platforms/instagram.svg", color: "#E4405F" },
+  LINKEDIN: { icon: "/platforms/linkedin.svg", color: "#0A66C2" },
+  X: { icon: "/platforms/x.svg", color: "#14171A" },
+  TIKTOK: { icon: "/platforms/tiktok.svg", color: "#010101" },
+}
+
 // Correspondance des statuts de publication
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Brouillon",
@@ -392,10 +401,21 @@ export function ClientDetailContent({
                     className="flex items-center justify-between rounded-lg border p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
-                        <span className="text-xs font-bold">
-                          {conn.platform.charAt(0)}
-                        </span>
+                      <div
+                        className="flex h-8 w-8 items-center justify-center rounded-md p-1.5"
+                        style={{ backgroundColor: `${PLATFORM_ICONS[conn.platform]?.color ?? "#6b7280"}15` }}
+                      >
+                        {PLATFORM_ICONS[conn.platform] ? (
+                          <img
+                            src={PLATFORM_ICONS[conn.platform].icon}
+                            alt={PLATFORM_LABELS[conn.platform] ?? conn.platform}
+                            className="h-5 w-5"
+                          />
+                        ) : (
+                          <span className="text-xs font-bold">
+                            {conn.platform.charAt(0)}
+                          </span>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium">
@@ -498,7 +518,15 @@ export function ClientDetailContent({
                     className="flex items-center justify-between rounded-lg border p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <Users className="h-4 w-4 text-muted-foreground" />
+                      {PLATFORM_ICONS[stat.platform] ? (
+                        <img
+                          src={PLATFORM_ICONS[stat.platform].icon}
+                          alt={PLATFORM_LABELS[stat.platform] ?? stat.platform}
+                          className="h-4 w-4"
+                        />
+                      ) : (
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                      )}
                       <div>
                         <p className="text-sm font-medium">
                           {PLATFORM_LABELS[stat.platform] ?? stat.platform}

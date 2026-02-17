@@ -19,7 +19,7 @@ const OAUTH_PLATFORMS = [
   {
     id: "meta",
     name: "Meta (Facebook + Instagram)",
-    shortName: "FB",
+    icon: "/platforms/facebook.svg",
     description: "Connectez vos pages Facebook et comptes Instagram professionnels",
     color: "#1877F2",
     route: "/api/auth/platforms/meta",
@@ -27,7 +27,7 @@ const OAUTH_PLATFORMS = [
   {
     id: "linkedin",
     name: "LinkedIn",
-    shortName: "Li",
+    icon: "/platforms/linkedin.svg",
     description: "Publiez sur votre profil ou vos pages LinkedIn",
     color: "#0A66C2",
     route: "/api/auth/platforms/linkedin",
@@ -35,7 +35,7 @@ const OAUTH_PLATFORMS = [
   {
     id: "x",
     name: "X (Twitter)",
-    shortName: "X",
+    icon: "/platforms/x.svg",
     description: "Publiez des tweets et threads automatiquement",
     color: "#14171A",
     route: "/api/auth/platforms/x",
@@ -43,7 +43,7 @@ const OAUTH_PLATFORMS = [
   {
     id: "tiktok",
     name: "TikTok",
-    shortName: "TT",
+    icon: "/platforms/tiktok.svg",
     description: "Publiez vos videos sur TikTok",
     color: "#010101",
     route: "/api/auth/platforms/tiktok",
@@ -91,10 +91,14 @@ export function ConnectPlatformDialog({ clientId, children }: ConnectPlatformDia
               className="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-accent"
             >
               <div
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white text-xs font-bold"
-                style={{ backgroundColor: platform.color }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg p-2"
+                style={{ backgroundColor: `${platform.color}15` }}
               >
-                {platform.shortName}
+                <img
+                  src={platform.icon}
+                  alt={platform.name}
+                  className="h-6 w-6"
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">{platform.name}</p>

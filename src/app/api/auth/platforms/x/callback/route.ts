@@ -4,6 +4,8 @@ import { NextResponse } from "next/server"
 import { verifyOAuthStateWithPKCE } from "@/lib/oauth/state"
 import { encryptToken } from "@/lib/crypto"
 import { prisma } from "@/lib/prisma"
+import { getPlanLimits } from "@/config/plans"
+import type { PlanType } from "@/config/plans"
 
 // Types pour les reponses API X
 interface XTokenResponse {
@@ -118,7 +120,50 @@ export async function GET(request: Request) {
       Date.now() + tokenData.expires_in * 1000
     )
 
-    // Etape 3 : Creer/mettre a jour la connexion X
+    // Etape 3 : Verification de la limite de plateformes du plan
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true },
+    })
+
+    if (!user) {
+      return NextResponse.redirect(
+        new URL(
+          `/dashboard/clients/${clientId}?error=oauth_failed&platform=x`,
+          origin
+        )
+      )
+    }
+
+    const planLimits = getPlanLimits(user.plan as PlanType)
+
+    // Verifier si c'est une nouvelle connexion ou une mise a jour
+    const existingConnection = await prisma.platformConnection.findUnique({
+      where: {
+        clientId_platform_platformAccountId: {
+          clientId,
+          platform: "X",
+          platformAccountId: profileData.data.id,
+        },
+      },
+    })
+
+    if (!existingConnection) {
+      const activeConnections = await prisma.platformConnection.count({
+        where: { clientId, isActive: true },
+      })
+
+      if (activeConnections >= planLimits.maxPlatforms) {
+        return NextResponse.redirect(
+          new URL(
+            `/dashboard/clients/${clientId}?error=platform_limit`,
+            origin
+          )
+        )
+      }
+    }
+
+    // Etape 4 : Creer/mettre a jour la connexion X
     await prisma.platformConnection.upsert({
       where: {
         clientId_platform_platformAccountId: {

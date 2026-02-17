@@ -31,23 +31,13 @@ export function PlanSelector({
   const [loadingPlan, setLoadingPlan] = useState<PlanType | null>(null)
 
   const handleUpgrade = async (planKey: PlanType) => {
-    const plan = PLANS[planKey]
-    const priceId = yearly
-      ? plan.stripePriceIdYearly
-      : plan.stripePriceIdMonthly
-
-    if (!priceId) {
-      toast.error("Identifiant de prix non configure")
-      return
-    }
-
     setLoadingPlan(planKey)
 
     try {
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId, yearly }),
+        body: JSON.stringify({ plan: planKey, yearly }),
       })
 
       const data: { url?: string; error?: string } = await response.json()

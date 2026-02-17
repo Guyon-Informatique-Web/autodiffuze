@@ -4,6 +4,8 @@ import { NextResponse } from "next/server"
 import { verifyOAuthState } from "@/lib/oauth/state"
 import { encryptToken } from "@/lib/crypto"
 import { prisma } from "@/lib/prisma"
+import { getPlanLimits } from "@/config/plans"
+import type { PlanType } from "@/config/plans"
 
 // Types pour les reponses API Meta
 interface MetaTokenResponse {
@@ -148,7 +150,50 @@ export async function GET(request: Request) {
     // Calculer la date d'expiration du token (60 jours pour les tokens longue duree)
     const tokenExpiresAt = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
 
-    // Etape 4 : Creer/mettre a jour la connexion Facebook avec le page access token
+    // Etape 4 : Verification de la limite de plateformes du plan
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true },
+    })
+
+    if (!user) {
+      return NextResponse.redirect(
+        new URL(
+          `/dashboard/clients/${clientId}?error=oauth_failed&platform=meta`,
+          origin
+        )
+      )
+    }
+
+    const planLimits = getPlanLimits(user.plan as PlanType)
+
+    // Verifier si la connexion Facebook existe deja (mise a jour vs nouvelle)
+    const existingFbConnection = await prisma.platformConnection.findUnique({
+      where: {
+        clientId_platform_platformAccountId: {
+          clientId,
+          platform: "FACEBOOK",
+          platformAccountId: page.id,
+        },
+      },
+    })
+
+    if (!existingFbConnection) {
+      const activeConnections = await prisma.platformConnection.count({
+        where: { clientId, isActive: true },
+      })
+
+      if (activeConnections >= planLimits.maxPlatforms) {
+        return NextResponse.redirect(
+          new URL(
+            `/dashboard/clients/${clientId}?error=platform_limit`,
+            origin
+          )
+        )
+      }
+    }
+
+    // Etape 5 : Creer/mettre a jour la connexion Facebook avec le page access token
     await prisma.platformConnection.upsert({
       where: {
         clientId_platform_platformAccountId: {
@@ -203,6 +248,37 @@ export async function GET(request: Request) {
               name?: string
             }
             igAccountName = igProfile.username ?? igProfile.name ?? igAccountName
+          }
+
+          // Verifier la limite de plateformes avant de creer la connexion Instagram
+          const existingIgConnection = await prisma.platformConnection.findUnique({
+            where: {
+              clientId_platform_platformAccountId: {
+                clientId,
+                platform: "INSTAGRAM",
+                platformAccountId: igAccountId,
+              },
+            },
+          })
+
+          if (!existingIgConnection) {
+            const activeConnectionsForIg = await prisma.platformConnection.count({
+              where: { clientId, isActive: true },
+            })
+
+            if (activeConnectionsForIg >= planLimits.maxPlatforms) {
+              // La limite est atteinte, on ne cree pas la connexion Instagram
+              // mais la connexion Facebook a deja ete creee/mise a jour
+              console.warn(
+                "Limite de plateformes atteinte pour Instagram, seul Facebook a ete connecte"
+              )
+              return NextResponse.redirect(
+                new URL(
+                  `/dashboard/clients/${clientId}?connected=meta`,
+                  origin
+                )
+              )
+            }
           }
 
           // Creer/mettre a jour la connexion Instagram

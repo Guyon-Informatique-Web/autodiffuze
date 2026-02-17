@@ -3,20 +3,34 @@ import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { stripe } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
+import { getStripePriceId } from "@/lib/stripe-helpers"
+import type { PlanType } from "@/config/plans"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+
+const VALID_PLANS: PlanType[] = ["PRO", "AGENCY"]
 
 export async function POST(request: Request) {
   try {
     const user = await requireUser()
 
-    const body = (await request.json()) as { priceId: string; yearly: boolean }
-    const { priceId } = body
+    const body = (await request.json()) as { plan: PlanType; yearly: boolean }
+    const { plan, yearly } = body
+
+    if (!plan || !VALID_PLANS.includes(plan)) {
+      return NextResponse.json(
+        { error: "Plan invalide" },
+        { status: 400 }
+      )
+    }
+
+    // Resolution du priceId cote serveur
+    const priceId = getStripePriceId(plan, yearly ?? false)
 
     if (!priceId) {
       return NextResponse.json(
-        { error: "Le priceId est requis" },
-        { status: 400 }
+        { error: "Identifiant de prix non configure pour ce plan" },
+        { status: 500 }
       )
     }
 

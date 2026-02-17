@@ -166,11 +166,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Verification de la limite du nombre de medias par publication
+    if (data.mediaUrls && data.mediaUrls.length > planLimits.maxMediaPerPublication) {
+      return NextResponse.json(
+        {
+          error: `Limite atteinte : votre plan permet ${planLimits.maxMediaPerPublication} media(s) par publication. Passez a un plan superieur pour en ajouter davantage.`,
+        },
+        { status: 403 }
+      )
+    }
+
     // Determiner le statut initial
     const initialStatus =
       data.scheduledAt && new Date(data.scheduledAt) > new Date()
         ? "SCHEDULED"
         : "DRAFT"
+
+    // Verification de la planification selon le plan
+    if (initialStatus === "SCHEDULED" && !planLimits.scheduling) {
+      return NextResponse.json(
+        {
+          error: "La planification n'est pas disponible avec votre plan. Passez a un plan superieur pour planifier vos publications.",
+        },
+        { status: 403 }
+      )
+    }
 
     // Creation de la publication avec les platformPublications si fournies
     const publication = await prisma.publication.create({

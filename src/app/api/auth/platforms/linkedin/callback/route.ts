@@ -4,6 +4,8 @@ import { NextResponse } from "next/server"
 import { verifyOAuthState } from "@/lib/oauth/state"
 import { encryptToken } from "@/lib/crypto"
 import { prisma } from "@/lib/prisma"
+import { getPlanLimits } from "@/config/plans"
+import type { PlanType } from "@/config/plans"
 
 // Types pour les reponses API LinkedIn
 interface LinkedInTokenResponse {
@@ -185,7 +187,50 @@ export async function GET(request: Request) {
     // Utiliser le nom de l'organisation si disponible, sinon le profil personnel
     const accountName = organizationName ?? personalName
 
-    // Etape 4 : Creer/mettre a jour la connexion LinkedIn
+    // Etape 4 : Verification de la limite de plateformes du plan
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true },
+    })
+
+    if (!user) {
+      return NextResponse.redirect(
+        new URL(
+          `/dashboard/clients/${clientId}?error=oauth_failed&platform=linkedin`,
+          origin
+        )
+      )
+    }
+
+    const planLimits = getPlanLimits(user.plan as PlanType)
+
+    // Verifier si c'est une nouvelle connexion ou une mise a jour
+    const existingConnection = await prisma.platformConnection.findUnique({
+      where: {
+        clientId_platform_platformAccountId: {
+          clientId,
+          platform: "LINKEDIN",
+          platformAccountId: profileData.sub,
+        },
+      },
+    })
+
+    if (!existingConnection) {
+      const activeConnections = await prisma.platformConnection.count({
+        where: { clientId, isActive: true },
+      })
+
+      if (activeConnections >= planLimits.maxPlatforms) {
+        return NextResponse.redirect(
+          new URL(
+            `/dashboard/clients/${clientId}?error=platform_limit`,
+            origin
+          )
+        )
+      }
+    }
+
+    // Etape 5 : Creer/mettre a jour la connexion LinkedIn
     await prisma.platformConnection.upsert({
       where: {
         clientId_platform_platformAccountId: {

@@ -28,7 +28,7 @@ function buildShareText(content: string, hashtags: string[]): string {
 // Enregistre un upload de media aupres de LinkedIn et retourne l'URL d'upload et l'asset URN
 async function registerMediaUpload(
   accessToken: string,
-  personUrn: string
+  ownerUrn: string
 ): Promise<{ uploadUrl: string; assetUrn: string }> {
   const response = await fetch(`${LINKEDIN_API_BASE}/assets?action=registerUpload`, {
     method: "POST",
@@ -38,7 +38,7 @@ async function registerMediaUpload(
     },
     body: JSON.stringify({
       registerUploadRequest: {
-        owner: personUrn,
+        owner: ownerUrn,
         recipes: ["urn:li:digitalmediaRecipe:feedshare-image"],
         serviceRelationships: [
           {
@@ -95,11 +95,15 @@ async function uploadMediaToLinkedIn(
   }
 }
 
-// Publie un post sur LinkedIn
+// Publie un post sur LinkedIn (profil personnel ou page entreprise)
 export async function publishToLinkedin(payload: PublishPayload): Promise<PublishResult> {
-  const { content, hashtags, mediaUrls, accessToken, platformAccountId } = payload
+  const { content, hashtags, mediaUrls, accessToken, platformAccountId, platformPageId } = payload
 
-  const personUrn = `urn:li:person:${platformAccountId}`
+  // Si platformPageId est renseigne, publier sur la page entreprise
+  // Sinon, publier sur le profil personnel
+  const authorUrn = platformPageId
+    ? `urn:li:organization:${platformPageId}`
+    : `urn:li:person:${platformAccountId}`
   const shareText = buildShareText(content, hashtags)
 
   try {
@@ -108,7 +112,7 @@ export async function publishToLinkedin(payload: PublishPayload): Promise<Publis
 
     if (mediaUrls.length > 0) {
       for (const mediaUrl of mediaUrls) {
-        const { uploadUrl, assetUrn } = await registerMediaUpload(accessToken, personUrn)
+        const { uploadUrl, assetUrn } = await registerMediaUpload(accessToken, authorUrn)
         await uploadMediaToLinkedIn(accessToken, uploadUrl, mediaUrl)
         mediaAssets.push(assetUrn)
       }
@@ -125,7 +129,7 @@ export async function publishToLinkedin(payload: PublishPayload): Promise<Publis
         : []
 
     const ugcPostBody = {
-      author: personUrn,
+      author: authorUrn,
       lifecycleState: "PUBLISHED",
       specificContent: {
         "com.linkedin.ugc.ShareContent": {

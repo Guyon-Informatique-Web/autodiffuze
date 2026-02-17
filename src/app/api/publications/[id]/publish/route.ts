@@ -1,7 +1,15 @@
 // API route pour publier immediatement une publication
+// Cree les jobs puis les traite dans la foulee (pas d'attente du cron)
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireUser } from "@/lib/auth"
+import { processPublishJob, updatePublicationStatus } from "@/lib/publishers/processor"
+
+// Laisser le temps aux publishers (upload media, appels API externes)
+export const maxDuration = 120
+
+// Nombre max de passes de retries pour rester dans la limite Vercel
+const MAX_RETRY_PASSES = 3
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -55,9 +63,9 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     }
 
     // Mise a jour de la publication et des platformPublications dans une transaction
-    const updated = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       // Mettre le statut de la publication a PUBLISHING
-      const updatedPublication = await tx.publication.update({
+      await tx.publication.update({
         where: { id },
         data: { status: "PUBLISHING" },
       })
@@ -81,30 +89,63 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       await tx.publishJob.createMany({
         data: publishJobs,
       })
+    })
 
-      // Retourner la publication mise a jour avec les relations
-      return tx.publication.findUnique({
-        where: { id: updatedPublication.id },
-        include: {
-          client: {
-            select: {
-              name: true,
-              logoUrl: true,
-            },
+    // --- Traitement immediat des jobs ---
+    // Recuperer les jobs PENDING crees pour cette publication
+    const pendingJobs = await prisma.publishJob.findMany({
+      where: { publicationId: id, status: "PENDING" },
+      select: { id: true },
+    })
+
+    // Traiter chaque job sequentiellement (eviter de surcharger les APIs)
+    for (const job of pendingJobs) {
+      await processPublishJob(job.id)
+    }
+
+    // Boucle de retries : re-traiter les jobs qui ont echoue et sont prets a retenter
+    for (let pass = 0; pass < MAX_RETRY_PASSES; pass++) {
+      const retryableJobs = await prisma.publishJob.findMany({
+        where: {
+          publicationId: id,
+          status: "PENDING",
+          nextRetryAt: { lte: new Date() },
+        },
+        select: { id: true },
+      })
+
+      if (retryableJobs.length === 0) break
+
+      for (const job of retryableJobs) {
+        await processPublishJob(job.id)
+      }
+    }
+
+    // Calculer le statut final de la publication
+    await updatePublicationStatus(id)
+
+    // Retourner la publication avec le statut mis a jour
+    const updated = await prisma.publication.findUnique({
+      where: { id },
+      include: {
+        client: {
+          select: {
+            name: true,
+            logoUrl: true,
           },
-          platformPublications: {
-            include: {
-              platformConnection: {
-                select: {
-                  platform: true,
-                  platformAccountName: true,
-                  platformAccountId: true,
-                },
+        },
+        platformPublications: {
+          include: {
+            platformConnection: {
+              select: {
+                platform: true,
+                platformAccountName: true,
+                platformAccountId: true,
               },
             },
           },
         },
-      })
+      },
     })
 
     return NextResponse.json({ publication: updated })

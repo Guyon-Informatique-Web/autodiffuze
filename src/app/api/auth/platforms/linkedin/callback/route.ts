@@ -21,6 +21,20 @@ interface LinkedInUserInfo {
   picture?: string
 }
 
+// Reponse de l'API organizationAcls (pages entreprise gerees par l'utilisateur)
+interface LinkedInOrgAclsResponse {
+  elements: Array<{
+    organization: string // "urn:li:organization:12345"
+    role: string
+  }>
+}
+
+// Reponse de l'API organizations (details d'une page entreprise)
+interface LinkedInOrganizationResponse {
+  localizedName: string
+  vanityName?: string
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
@@ -111,18 +125,67 @@ export async function GET(request: Request) {
 
     const profileData: LinkedInUserInfo = await profileResponse.json()
 
-    // Construire le nom d'affichage
+    // Construire le nom d'affichage du profil
     const composedName = [profileData.given_name, profileData.family_name]
       .filter(Boolean)
       .join(" ")
-    const accountName = profileData.name ?? (composedName || "LinkedIn")
+    const personalName = profileData.name ?? (composedName || "LinkedIn")
 
     // Calculer la date d'expiration du token
     const tokenExpiresAt = new Date(
       Date.now() + tokenData.expires_in * 1000
     )
 
-    // Etape 3 : Creer/mettre a jour la connexion LinkedIn
+    // Etape 3 : Tenter de recuperer les pages entreprise gerees par l'utilisateur
+    let organizationId: string | null = null
+    let organizationName: string | null = null
+
+    try {
+      const orgAclsResponse = await fetch(
+        "https://api.linkedin.com/v2/organizationAcls?q=roleAssignee&role=ADMINISTRATOR",
+        {
+          headers: {
+            Authorization: `Bearer ${tokenData.access_token}`,
+          },
+        }
+      )
+
+      if (orgAclsResponse.ok) {
+        const orgAclsData: LinkedInOrgAclsResponse = await orgAclsResponse.json()
+
+        if (orgAclsData.elements.length > 0) {
+          // Extraire l'ID numerique de l'URN "urn:li:organization:12345"
+          const orgUrn = orgAclsData.elements[0].organization
+          organizationId = orgUrn.split(":").pop() ?? null
+
+          // Recuperer le nom de l'organisation
+          if (organizationId) {
+            const orgDetailResponse = await fetch(
+              `https://api.linkedin.com/v2/organizations/${organizationId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${tokenData.access_token}`,
+                },
+              }
+            )
+
+            if (orgDetailResponse.ok) {
+              const orgDetail: LinkedInOrganizationResponse = await orgDetailResponse.json()
+              organizationName = orgDetail.localizedName
+            }
+          }
+        }
+      }
+    } catch (orgError) {
+      // Les scopes organisation ne sont peut-etre pas disponibles
+      // On continue avec le profil personnel uniquement
+      console.warn("Impossible de recuperer les organisations LinkedIn :", orgError)
+    }
+
+    // Utiliser le nom de l'organisation si disponible, sinon le profil personnel
+    const accountName = organizationName ?? personalName
+
+    // Etape 4 : Creer/mettre a jour la connexion LinkedIn
     await prisma.platformConnection.upsert({
       where: {
         clientId_platform_platformAccountId: {
@@ -136,6 +199,7 @@ export async function GET(request: Request) {
         refreshToken: null,
         tokenExpiresAt,
         platformAccountName: accountName,
+        platformPageId: organizationId,
         isActive: true,
         errorMessage: null,
       },
@@ -145,6 +209,7 @@ export async function GET(request: Request) {
         platform: "LINKEDIN",
         platformAccountId: profileData.sub,
         platformAccountName: accountName,
+        platformPageId: organizationId,
         accessToken: encryptToken(tokenData.access_token),
         tokenExpiresAt,
         isActive: true,

@@ -6,8 +6,12 @@ import type { PlanType } from "@/config/plans"
 // Verifie que l'utilisateur a encore des credits IA, en consomme un et retourne le solde restant
 export async function checkAndConsumeAiCredit(
   userId: string,
-  plan: PlanType
+  plan: PlanType,
+  isAdmin?: boolean
 ): Promise<number> {
+  // Bypass total pour l'administrateur : pas de limite ni de decompte
+  if (isAdmin) return Infinity
+
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   })

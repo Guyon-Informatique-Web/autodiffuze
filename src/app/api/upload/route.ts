@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const user = await requireUser()
 
     // Recuperation des limites du plan utilisateur
-    const planLimits = getPlanLimits(user.plan as PlanType)
+    const planLimits = getPlanLimits(user.plan as PlanType, user.isAdmin)
     const maxSizeBytes = planLimits.maxMediaSizeMB * 1024 * 1024
 
     // Lecture du FormData

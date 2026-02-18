@@ -10,7 +10,7 @@ export async function GET() {
     const user = await requireUser()
 
     // Verification du plan AGENCY
-    const limits = getPlanLimits(user.plan as PlanType)
+    const limits = getPlanLimits(user.plan as PlanType, user.isAdmin)
     if (!limits.analytics) {
       return NextResponse.json(
         { error: "Fonctionnalite reservee au plan Agence" },

@@ -15,7 +15,7 @@ export default async function AnalyticsPage() {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
-  const limits = getPlanLimits(user.plan as PlanType)
+  const limits = getPlanLimits(user.plan as PlanType, user.isAdmin)
   const hasAdvancedAnalytics = limits.analytics
 
   return (

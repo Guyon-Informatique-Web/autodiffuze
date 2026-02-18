@@ -38,7 +38,7 @@ export default async function CreatePublicationPage({
   })
 
   // Recuperer les limites du plan
-  const planLimits = getPlanLimits(user.plan as PlanType)
+  const planLimits = getPlanLimits(user.plan as PlanType, user.isAdmin)
 
   // Charger les templates si le plan le permet
   let templates: Array<{

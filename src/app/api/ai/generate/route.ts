@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
     // Consommation d'un credit IA
     const creditsRemaining = await checkAndConsumeAiCredit(
       user.id,
-      user.plan as PlanType
+      user.plan as PlanType,
+      user.isAdmin
     )
 
     // Construction du prompt systeme avec le contexte du client

@@ -11,8 +11,8 @@ export async function GET() {
     const user = await requireUser()
 
     const plan = user.plan as PlanType
-    const usage = await getUserUsage(user.id, plan)
-    const limits = getPlanLimits(plan)
+    const usage = await getUserUsage(user.id, plan, user.isAdmin)
+    const limits = getPlanLimits(plan, user.isAdmin)
     const planConfig = PLANS[plan]
 
     return NextResponse.json({

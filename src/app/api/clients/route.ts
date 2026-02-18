@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     const user = await requireUser()
 
     // Verification de la limite du plan
-    const planLimits = getPlanLimits(user.plan as PlanType)
+    const planLimits = getPlanLimits(user.plan as PlanType, user.isAdmin)
     const clientCount = await prisma.client.count({
       where: { userId: user.id },
     })

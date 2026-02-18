@@ -39,7 +39,7 @@ export default async function TemplatesPage() {
   }
 
   // Verification que le plan autorise les templates
-  const planLimits = getPlanLimits(user.plan as PlanType)
+  const planLimits = getPlanLimits(user.plan as PlanType, user.isAdmin)
 
   if (!planLimits.templates) {
     return (

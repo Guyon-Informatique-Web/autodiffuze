@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verification de la limite du plan (publications du mois en cours)
-    const planLimits = getPlanLimits(user.plan as PlanType)
+    const planLimits = getPlanLimits(user.plan as PlanType, user.isAdmin)
     const startOfMonth = new Date()
     startOfMonth.setDate(1)
     startOfMonth.setHours(0, 0, 0, 0)

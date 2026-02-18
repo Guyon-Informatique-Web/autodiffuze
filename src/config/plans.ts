@@ -99,7 +99,21 @@ export const PLANS: Record<PlanType, PlanConfig> = {
   },
 } as const
 
-// Utilitaire pour recuperer les limites d'un plan
-export function getPlanLimits(plan: PlanType): PlanLimits {
+// Limites illimitees pour l'administrateur du SaaS
+const ADMIN_LIMITS: PlanLimits = {
+  maxClients: 999999,
+  maxPublicationsPerMonth: 999999,
+  maxPlatforms: 5,
+  maxMediaPerPublication: 20,
+  maxMediaSizeMB: 50,
+  aiGenerationsPerMonth: 999999,
+  scheduling: true,
+  templates: true,
+  analytics: true,
+}
+
+// Utilitaire pour recuperer les limites d'un plan (bypass total si admin)
+export function getPlanLimits(plan: PlanType, isAdmin?: boolean): PlanLimits {
+  if (isAdmin) return ADMIN_LIMITS
   return PLANS[plan].limits
 }

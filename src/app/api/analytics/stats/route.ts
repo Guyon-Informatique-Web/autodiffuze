@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     // Stats avancees reservees au plan AGENCY
     if (mode === "advanced") {
-      const limits = getPlanLimits(user.plan as PlanType)
+      const limits = getPlanLimits(user.plan as PlanType, user.isAdmin)
       if (!limits.analytics) {
         return NextResponse.json(
           { error: "Fonctionnalite reservee au plan Agence" },

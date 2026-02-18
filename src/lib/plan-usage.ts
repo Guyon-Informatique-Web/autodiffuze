@@ -16,9 +16,10 @@ export interface PlanUsage {
 // Recupere l'usage courant de l'utilisateur pour toutes les limites du plan
 export async function getUserUsage(
   userId: string,
-  plan: PlanType
+  plan: PlanType,
+  isAdmin?: boolean
 ): Promise<PlanUsage> {
-  const limits = getPlanLimits(plan)
+  const limits = getPlanLimits(plan, isAdmin)
 
   // Debut du mois en cours pour le comptage des publications
   const startOfMonth = new Date()

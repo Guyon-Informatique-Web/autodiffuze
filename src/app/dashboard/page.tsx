@@ -89,7 +89,7 @@ export default async function DashboardPage() {
   }
 
   const now = new Date()
-  const planLimits = getPlanLimits(user.plan as PlanType)
+  const planLimits = getPlanLimits(user.plan as PlanType, user.isAdmin)
 
   // Debut du mois courant pour le comptage des publications
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)

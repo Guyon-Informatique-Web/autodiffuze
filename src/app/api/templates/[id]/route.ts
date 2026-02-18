@@ -50,7 +50,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { id } = await params
 
     // Verification que le plan autorise les templates
-    const planLimits = getPlanLimits(user.plan as PlanType)
+    const planLimits = getPlanLimits(user.plan as PlanType, user.isAdmin)
     if (!planLimits.templates) {
       return NextResponse.json(
         {

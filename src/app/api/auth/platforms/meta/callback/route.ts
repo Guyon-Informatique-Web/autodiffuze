@@ -153,7 +153,7 @@ export async function GET(request: Request) {
     // Etape 4 : Verification de la limite de plateformes du plan
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { plan: true },
+      select: { plan: true, isAdmin: true },
     })
 
     if (!user) {
@@ -165,7 +165,7 @@ export async function GET(request: Request) {
       )
     }
 
-    const planLimits = getPlanLimits(user.plan as PlanType)
+    const planLimits = getPlanLimits(user.plan as PlanType, user.isAdmin)
 
     // Verifier si la connexion Facebook existe deja (mise a jour vs nouvelle)
     const existingFbConnection = await prisma.platformConnection.findUnique({

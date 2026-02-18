@@ -79,7 +79,8 @@ export async function POST(request: NextRequest) {
     // Consommation d'un credit IA
     const creditsRemaining = await checkAndConsumeAiCredit(
       user.id,
-      user.plan as PlanType
+      user.plan as PlanType,
+      user.isAdmin
     )
 
     // Recuperation de la configuration de la plateforme cible

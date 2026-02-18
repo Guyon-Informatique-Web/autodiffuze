@@ -17,7 +17,10 @@ export async function getCurrentUser(): Promise<User | null> {
 
   const user = await prisma.user.upsert({
     where: { id: authUser.id },
-    update: {},
+    update: {
+      // Synchronisation du flag admin a chaque connexion
+      ...(isAdminEmail && { isAdmin: true, plan: "AGENCY" }),
+    },
     create: {
       id: authUser.id,
       email: authUser.email!,

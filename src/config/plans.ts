@@ -18,8 +18,6 @@ export interface PlanConfig {
   name: string
   price: number
   yearlyPrice?: number
-  stripePriceIdMonthly?: string
-  stripePriceIdYearly?: string
   limits: PlanLimits
   features: string[]
 }
@@ -51,8 +49,6 @@ export const PLANS: Record<PlanType, PlanConfig> = {
     name: "Pro",
     price: 19.99,
     yearlyPrice: 199.99,
-    stripePriceIdMonthly: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || "",
-    stripePriceIdYearly: process.env.STRIPE_PRO_YEARLY_PRICE_ID || "",
     limits: {
       maxClients: 5,
       maxPublicationsPerMonth: 100,
@@ -78,8 +74,6 @@ export const PLANS: Record<PlanType, PlanConfig> = {
     name: "Agence",
     price: 49.99,
     yearlyPrice: 499.99,
-    stripePriceIdMonthly: process.env.STRIPE_AGENCY_MONTHLY_PRICE_ID || "",
-    stripePriceIdYearly: process.env.STRIPE_AGENCY_YEARLY_PRICE_ID || "",
     limits: {
       maxClients: 25,
       maxPublicationsPerMonth: 500,

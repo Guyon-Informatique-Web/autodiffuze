@@ -2,12 +2,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // Marquer comme lue
-export async function PATCH(
+export const PATCH = withErrorHandling(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -40,13 +41,13 @@ export async function PATCH(
       { status: 500 }
     )
   }
-}
+});
 
 // Supprimer une notification
-export async function DELETE(
+export const DELETE = withErrorHandling(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -75,4 +76,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-}
+});

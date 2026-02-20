@@ -4,10 +4,11 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { notifyScheduledReminder } from "@/lib/email/notify"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 export const dynamic = "force-dynamic"
 
-export async function GET(request: Request) {
+export const GET = withErrorHandling(async (request: Request) => {
   // Verifier l'authentification du cron
   const authHeader = request.headers.get("authorization")
   const cronSecret = process.env.CRON_SECRET
@@ -115,4 +116,4 @@ export async function GET(request: Request) {
       { status: 500 }
     )
   }
-}
+});

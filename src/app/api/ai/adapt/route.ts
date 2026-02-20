@@ -8,6 +8,7 @@ import { adaptContentSchema } from "@/lib/validations/ai"
 import { PLATFORM_CONFIG } from "@/config/platforms"
 import type { PlatformKey } from "@/config/platforms"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // Separe le contenu du post et les hashtags de la reponse IA
 function parseAdaptedResponse(rawContent: string): {
@@ -45,7 +46,7 @@ function parseAdaptedResponse(rawContent: string): {
   return { adaptedContent: rawContent.trim(), hashtags: [] }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandling(async (request: NextRequest) => {
   try {
     const user = await requireUser()
 
@@ -157,4 +158,4 @@ Les hashtags doivent etre sur une ligne separee a la fin.`
       { status: 500 }
     )
   }
-}
+});

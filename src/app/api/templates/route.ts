@@ -5,9 +5,10 @@ import { requireUser } from "@/lib/auth"
 import { createTemplateSchema } from "@/lib/validations/template"
 import { getPlanLimits } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // GET : Liste les templates de l'utilisateur connecte
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   try {
     const user = await requireUser()
 
@@ -38,10 +39,10 @@ export async function GET() {
       { status: 500 }
     )
   }
-}
+});
 
 // POST : Creer un nouveau template
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandling(async (request: NextRequest) => {
   try {
     const user = await requireUser()
 
@@ -92,4 +93,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+});

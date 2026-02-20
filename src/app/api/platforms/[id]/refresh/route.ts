@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { decryptToken, encryptToken } from "@/lib/crypto"
 import type { PlatformType } from "@/generated/prisma/client"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // Types pour les reponses de rafraichissement des differentes plateformes
 interface MetaRefreshResponse {
@@ -201,10 +202,10 @@ async function refreshTokenForPlatform(
   }
 }
 
-export async function POST(
+export const POST = withErrorHandling(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -310,4 +311,4 @@ export async function POST(
       { status: 500 }
     )
   }
-}
+});

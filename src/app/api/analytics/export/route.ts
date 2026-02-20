@@ -4,8 +4,9 @@ import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getPlanLimits } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   try {
     const user = await requireUser()
 
@@ -86,7 +87,7 @@ export async function GET() {
       { status: 500 }
     )
   }
-}
+});
 
 // Echappe les valeurs CSV (guillemets doubles)
 function escapeCsv(value: string): string {

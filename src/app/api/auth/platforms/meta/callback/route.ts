@@ -6,6 +6,7 @@ import { encryptToken } from "@/lib/crypto"
 import { prisma } from "@/lib/prisma"
 import { getPlanLimits } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // Types pour les reponses API Meta
 interface MetaTokenResponse {
@@ -31,7 +32,7 @@ interface MetaInstagramResponse {
   }
 }
 
-export async function GET(request: Request) {
+export const GET = withErrorHandling(async (request: Request) => {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
   const state = searchParams.get("state")
@@ -336,4 +337,4 @@ export async function GET(request: Request) {
       )
     )
   }
-}
+}, "AUTH");

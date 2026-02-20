@@ -5,13 +5,10 @@ import { requireUser } from "@/lib/auth"
 import { updateTemplateSchema } from "@/lib/validations/template"
 import { getPlanLimits } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
-
-interface RouteParams {
-  params: Promise<{ id: string }>
-}
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // GET : Detail d'un template
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export const GET = withErrorHandling(async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -41,10 +38,10 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     )
   }
-}
+});
 
 // PATCH : Modifier un template
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export const PATCH = withErrorHandling(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -117,10 +114,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     )
   }
-}
+});
 
 // DELETE : Supprimer un template (cascade geree par Prisma)
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export const DELETE = withErrorHandling(async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -154,4 +151,4 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     )
   }
-}
+});

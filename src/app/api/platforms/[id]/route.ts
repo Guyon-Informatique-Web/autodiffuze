@@ -2,11 +2,12 @@
 import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
-export async function DELETE(
+export const DELETE = withErrorHandling(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -44,4 +45,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-}
+});

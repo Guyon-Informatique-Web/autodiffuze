@@ -6,6 +6,7 @@ import { createPublicationSchema } from "@/lib/validations/publication"
 import { getPlanLimits } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
 import type { Prisma, PublicationStatus, PlatformType } from "@/generated/prisma/client"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // Statuts de publication valides pour le filtrage
 const VALID_STATUSES: PublicationStatus[] = [
@@ -27,7 +28,7 @@ const VALID_PLATFORMS: PlatformType[] = [
 ]
 
 // GET : Liste paginee des publications de l'utilisateur connecte
-export async function GET(request: NextRequest) {
+export const GET = withErrorHandling(async (request: NextRequest) => {
   try {
     const user = await requireUser()
 
@@ -108,10 +109,10 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+});
 
 // POST : Creer une nouvelle publication
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandling(async (request: NextRequest) => {
   try {
     const user = await requireUser()
 
@@ -249,4 +250,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+});

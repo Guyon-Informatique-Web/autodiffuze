@@ -4,9 +4,10 @@ import { requireUser } from "@/lib/auth"
 import { getUserUsage } from "@/lib/plan-usage"
 import { getPlanLimits, PLANS } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // GET : Retourne l'usage courant, le plan actuel et les limites du plan
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   try {
     const user = await requireUser()
 
@@ -32,4 +33,4 @@ export async function GET() {
       { status: 500 }
     )
   }
-}
+});

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 const updateNotificationsSchema = z.object({
   notifyEmail: z.boolean().optional(),
@@ -10,7 +11,7 @@ const updateNotificationsSchema = z.object({
   discordWebhookUrl: z.string().url("URL du webhook invalide").optional().or(z.literal("")),
 })
 
-export async function PATCH(request: Request) {
+export const PATCH = withErrorHandling(async (request: Request) => {
   try {
     const user = await requireUser()
     const body: unknown = await request.json()
@@ -60,4 +61,4 @@ export async function PATCH(request: Request) {
       { status: 500 }
     )
   }
-}
+});

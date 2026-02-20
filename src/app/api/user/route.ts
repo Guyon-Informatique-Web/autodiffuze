@@ -4,8 +4,9 @@ import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { createClient } from "@supabase/supabase-js"
 import Stripe from "stripe"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
-export async function DELETE() {
+export const DELETE = withErrorHandling(async () => {
   try {
     const user = await requireUser()
 
@@ -52,4 +53,4 @@ export async function DELETE() {
       { status: 500 }
     )
   }
-}
+});

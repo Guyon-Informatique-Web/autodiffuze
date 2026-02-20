@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth"
 import { createClient } from "@/lib/supabase/server"
 import { getPlanLimits } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // Types MIME acceptes pour l'upload
 const ALLOWED_MIME_TYPES = [
@@ -31,7 +32,7 @@ function generateRandomId(): string {
 }
 
 // POST : Upload d'un media vers le bucket Supabase "media"
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandling(async (request: NextRequest) => {
   try {
     const user = await requireUser()
 
@@ -127,4 +128,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+});

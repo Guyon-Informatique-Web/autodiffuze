@@ -4,8 +4,9 @@ import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { generateOAuthState } from "@/lib/oauth/state"
 import { PLATFORM_CONFIG } from "@/config/platforms"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
-export async function GET(request: Request) {
+export const GET = withErrorHandling(async (request: Request) => {
   try {
     const user = await requireUser()
 
@@ -41,4 +42,4 @@ export async function GET(request: Request) {
       new URL("/dashboard?error=auth_required", request.url)
     )
   }
-}
+}, "AUTH");

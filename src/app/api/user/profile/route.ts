@@ -3,12 +3,13 @@ import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 const updateProfileSchema = z.object({
   name: z.string().min(1, "Le nom est requis").max(100, "Le nom est trop long"),
 })
 
-export async function PATCH(request: Request) {
+export const PATCH = withErrorHandling(async (request: Request) => {
   try {
     const user = await requireUser()
     const body: unknown = await request.json()
@@ -40,4 +41,4 @@ export async function PATCH(request: Request) {
       { status: 500 }
     )
   }
-}
+});

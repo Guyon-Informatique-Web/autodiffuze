@@ -5,10 +5,11 @@ import type Stripe from "stripe"
 import { stripe } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
 import { getPlanFromPriceId } from "@/lib/stripe-helpers"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 export const dynamic = "force-dynamic"
 
-export async function POST(request: Request) {
+export const POST = withErrorHandling(async (request: Request) => {
   const body = await request.text()
   const signature = request.headers.get("stripe-signature")
 
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ received: true })
-}
+}, "WEBHOOK");
 
 // Traitement de la completion d'un checkout
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {

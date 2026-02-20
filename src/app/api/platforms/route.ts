@@ -2,8 +2,9 @@
 import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   try {
     const user = await requireUser()
 
@@ -38,4 +39,4 @@ export async function GET() {
       { status: 500 }
     )
   }
-}
+});

@@ -4,11 +4,12 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { processPublishJob, updatePublicationStatus } from "@/lib/publishers/processor"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 300 // 5 minutes max pour le cron
 
-export async function GET(request: Request) {
+export const GET = withErrorHandling(async (request: Request) => {
   // Verifier l'authentification du cron
   const authHeader = request.headers.get("authorization")
   const cronSecret = process.env.CRON_SECRET
@@ -170,4 +171,4 @@ export async function GET(request: Request) {
       { status: 500 }
     )
   }
-}
+});

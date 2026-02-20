@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 const updatePasswordSchema = z.object({
   password: z
@@ -10,7 +11,7 @@ const updatePasswordSchema = z.object({
     .min(8, "Le mot de passe doit contenir au moins 8 caracteres"),
 })
 
-export async function POST(request: Request) {
+export const POST = withErrorHandling(async (request: Request) => {
   try {
     await requireUser()
     const body: unknown = await request.json()
@@ -58,4 +59,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-}
+});

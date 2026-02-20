@@ -5,12 +5,13 @@ import { stripe } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
 import { getStripePriceId } from "@/lib/stripe-helpers"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 
 const VALID_PLANS: PlanType[] = ["PRO", "AGENCY"]
 
-export async function POST(request: Request) {
+export const POST = withErrorHandling(async (request: Request) => {
   try {
     const user = await requireUser()
 
@@ -75,4 +76,4 @@ export async function POST(request: Request) {
     console.error("[STRIPE_CHECKOUT]", error)
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 })
   }
-}
+}, "PAYMENT");

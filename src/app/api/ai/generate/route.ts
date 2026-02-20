@@ -6,8 +6,9 @@ import { anthropic } from "@/lib/ai/anthropic"
 import { checkAndConsumeAiCredit } from "@/lib/ai/credits"
 import { generateContentSchema } from "@/lib/validations/ai"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandling(async (request: NextRequest) => {
   try {
     const user = await requireUser()
 
@@ -107,4 +108,4 @@ Ne mets pas de titre, de preambule ou d'explication.`
       { status: 500 }
     )
   }
-}
+});

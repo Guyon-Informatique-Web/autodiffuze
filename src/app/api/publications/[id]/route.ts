@@ -3,13 +3,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireUser } from "@/lib/auth"
 import { updatePublicationSchema } from "@/lib/validations/publication"
-
-interface RouteParams {
-  params: Promise<{ id: string }>
-}
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // GET : Detail d'une publication avec ses platformPublications et client
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export const GET = withErrorHandling(async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -58,10 +55,10 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     )
   }
-}
+});
 
 // PATCH : Modifier une publication (brouillon uniquement)
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export const PATCH = withErrorHandling(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -190,10 +187,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     )
   }
-}
+});
 
 // DELETE : Supprimer une publication (cascade geree par Prisma)
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export const DELETE = withErrorHandling(async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -227,4 +224,4 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     )
   }
-}
+});

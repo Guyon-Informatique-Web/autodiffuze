@@ -2,10 +2,11 @@
 import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { stripe } from "@/lib/stripe"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 
-export async function POST() {
+export const POST = withErrorHandling(async () => {
   try {
     const user = await requireUser()
 
@@ -30,4 +31,4 @@ export async function POST() {
     console.error("[STRIPE_PORTAL]", error)
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 })
   }
-}
+}, "PAYMENT");

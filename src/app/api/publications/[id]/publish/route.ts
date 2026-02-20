@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireUser } from "@/lib/auth"
 import { processPublishJob, updatePublicationStatus } from "@/lib/publishers/processor"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
 // Laisser le temps aux publishers (upload media, appels API externes)
 export const maxDuration = 120
@@ -11,12 +12,8 @@ export const maxDuration = 120
 // Nombre max de passes de retries pour rester dans la limite Vercel
 const MAX_RETRY_PASSES = 3
 
-interface RouteParams {
-  params: Promise<{ id: string }>
-}
-
 // POST : Lancer la publication immediate
-export async function POST(_request: NextRequest, { params }: RouteParams) {
+export const POST = withErrorHandling(async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await requireUser()
     const { id } = await params
@@ -158,4 +155,4 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     )
   }
-}
+});

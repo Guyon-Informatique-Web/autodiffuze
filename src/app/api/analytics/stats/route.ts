@@ -4,8 +4,9 @@ import { requireUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getPlanLimits } from "@/config/plans"
 import type { PlanType } from "@/config/plans"
+import { withErrorHandling } from "@/lib/api-error-handler"
 
-export async function GET(request: NextRequest) {
+export const GET = withErrorHandling(async (request: NextRequest) => {
   try {
     const user = await requireUser()
 
@@ -177,4 +178,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+});

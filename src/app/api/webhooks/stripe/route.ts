@@ -118,6 +118,29 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripeSubscriptionId: subscriptionId,
     },
   })
+
+  // Sync vers FactuPilot (non-bloquant)
+  const { syncPaymentToFactuPilot } = await import("@/lib/factupilot-sync")
+  const sub = typeof session.subscription === "string"
+    ? await stripe.subscriptions.retrieve(session.subscription)
+    : null
+  const priceId = sub?.items.data[0]?.price.id
+  const isYearly = sub?.items.data[0]?.price.recurring?.interval === "year"
+  // On récupère le montant depuis la session Stripe
+  const amount = (session.amount_total || 0) / 100
+  syncPaymentToFactuPilot({
+    client: {
+      email: session.customer_email || session.customer_details?.email || "",
+      name: session.customer_details?.name || session.customer_email || "",
+    },
+    payment: {
+      amount,
+      description: `Abonnement Autodiffuze — ${isYearly ? "annuel" : "mensuel"}`,
+      stripePaymentId: session.id,
+      type: "subscription",
+      date: new Date().toISOString(),
+    },
+  }).catch((err: unknown) => console.error("Erreur sync FactuPilot (non-bloquant):", err))
 }
 
 // Traitement de la mise a jour d'un abonnement

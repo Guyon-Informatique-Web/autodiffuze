@@ -6,13 +6,16 @@ import { logError } from "@/lib/error-logger"
 import { getClientIp } from "@/lib/rate-limit"
 import type { ErrorCategory } from "@/lib/error-logger"
 
+type RouteContext = { params: Promise<Record<string, string>> }
+
 type RouteHandler = (
   request: NextRequest,
-  context: { params: Promise<Record<string, string>> }
+  context: RouteContext
 ) => Promise<Response> | Response
 
 export function withErrorHandling(
-  handler: RouteHandler,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handler: (request: NextRequest, context: any) => Promise<Response> | Response,
   category: ErrorCategory = "API"
 ): RouteHandler {
   return async (request, context) => {

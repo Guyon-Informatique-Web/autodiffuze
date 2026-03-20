@@ -15,6 +15,9 @@ export const APP_CONFIG = {
     status: "Micro-entreprise",
     email: "contact@guyoninformatique.fr",
     website: "https://guyon-informatique-web.fr",
+    address: "34 rue Victor Hugo, 66430 BOMPAS, France",
+    siret: "89430689300047",
+    apeCode: "6201Z",
   },
   social: {
     twitter: "",

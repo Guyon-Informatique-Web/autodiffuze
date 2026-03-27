@@ -48,7 +48,7 @@ export default function LegalPage() {
                 <ul className="mt-3 space-y-1.5 list-none">
                   <li><strong className="text-foreground">Raison sociale :</strong> {APP_CONFIG.company.name}</li>
                   <li><strong className="text-foreground">Statut juridique :</strong> {APP_CONFIG.company.status}</li>
-                  <li><strong className="text-foreground">SIRET :</strong> 89430689300047</li>
+                  <li><strong className="text-foreground">SIRET :</strong> 89430689300054</li>
                   <li><strong className="text-foreground">Code APE :</strong> 6201Z</li>
                   <li><strong className="text-foreground">Adresse :</strong> 34 rue Victor Hugo, 66430 BOMPAS, France</li>
                   <li><strong className="text-foreground">Directeur de la publication :</strong> Valentin Guyon</li>

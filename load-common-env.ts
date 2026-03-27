@@ -8,7 +8,7 @@ import { resolve } from "path";
 import { parse } from "dotenv";
 
 const PROJECT_PREFIX = "AUTODIFFUZE_";
-const ALL_PREFIXES = ["VIGIEWEB_", "AUTODIFFUZE_"];
+const ALL_PREFIXES = ["VIGIEWEB_", "AUTODIFFUZE_", "FACTUPILOT_", "FICHFLOW_"];
 
 const publicEnvVars: Record<string, string> = {};
 
